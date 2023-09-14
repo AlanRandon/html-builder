@@ -13,14 +13,14 @@ where
     format!(
         "<!DOCTYPE html>{}",
         html()
-            .attr("lang", "en")
+            .attribute("lang", "en")
             .child(
                 prelude::head()
-                    .child(meta().attr("charset", "utf-8"))
+                    .child(meta().attribute("charset", "utf-8"))
                     .child(
                         meta()
-                            .attr("name", "viewport")
-                            .attr("content", "width=device-width, initial-scale=1"),
+                            .attribute("name", "viewport")
+                            .attribute("content", "width=device-width, initial-scale=1"),
                     )
                     .children(head.into_iter())
             )
@@ -92,7 +92,7 @@ impl Element {
         }
     }
 
-    pub fn attr(mut self, key: impl Display, value: impl Display) -> Self {
+    pub fn attribute(mut self, key: impl Display, value: impl Display) -> Self {
         self.attributes.0.insert(key.to_string(), value.to_string());
         self
     }
@@ -107,7 +107,7 @@ impl Element {
         self
     }
 
-    pub fn opt_child(self, child: Option<impl Into<Node>>) -> Self {
+    pub fn optional_child(self, child: Option<impl Into<Node>>) -> Self {
         self.children(child.into_iter())
     }
 
@@ -142,7 +142,7 @@ impl VoidElement {
         }
     }
 
-    pub fn attr(mut self, key: impl Display, value: impl Display) -> Self {
+    pub fn attribute(mut self, key: impl Display, value: impl Display) -> Self {
         self.attributes.0.insert(key.to_string(), value.to_string());
         self
     }
@@ -241,14 +241,14 @@ pub mod html {
             impl Element {
                 #[allow(dead_code)]
                 pub fn $name(self, value: impl Display) -> Self {
-                    self.attr(stringify!($name), value)
+                    self.attribute(stringify!($name), value)
                 }
             }
 
             impl VoidElement {
                 #[allow(dead_code)]
                 pub fn $name(self, value: impl Display) -> Self {
-                    self.attr(stringify!($name), value)
+                    self.attribute(stringify!($name), value)
                 }
             }
         };
