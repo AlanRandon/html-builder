@@ -72,6 +72,17 @@ impl Display for VoidElement {
 
 pub trait Element: Sized {
     fn attribute(self, key: impl Display, value: impl Display) -> Self;
+
+    // TODO: auto-generate global attributes???
+
+    fn class(self, value: impl Display) -> Self {
+        self.attribute("class", value)
+    }
+
+    // TODO: add docs?
+    fn id(self, value: impl Display) -> Self {
+        self.attribute("id", value)
+    }
 }
 
 pub trait Children: Element {

@@ -1,3 +1,5 @@
+// TODO: use better data source
+
 use heck::{ToSnakeCase, ToUpperCamelCase};
 use itertools::Itertools;
 use proc_macro2::Ident;
@@ -7,9 +9,16 @@ use serde_json::Value;
 use std::str::FromStr;
 
 #[derive(Deserialize)]
-struct Description {
-    kind: String,
-    value: String,
+#[serde(transparent)]
+struct Description(Value);
+
+impl Description {
+    fn as_str(&self) -> Option<&str> {
+        self.0
+            .get("value")
+            .and_then(|value| value.as_str())
+            .or_else(|| self.0.as_str())
+    }
 }
 
 #[derive(Deserialize)]
@@ -21,13 +30,13 @@ struct Reference {
 #[derive(Deserialize)]
 struct Attribute {
     name: String,
-    description: Option<Value>,
+    description: Option<Description>,
 }
 
 #[derive(Deserialize)]
 struct Tag {
     name: String,
-    description: Value,
+    description: Description,
     attributes: Vec<Attribute>,
     references: Vec<Reference>,
     void: Option<bool>,
@@ -58,17 +67,26 @@ fn main() {
     let data = data.into_iter().map(|value| {
         let name = value.name();
         let tag_name = value.tag_name();
+        let doc = value.description.as_str().unwrap_or_default();
+
         let element = if value.void() {
-            quote! { void_element_struct!(#name, #tag_name); }
+            quote! { void_element_struct!(#name, #tag_name, #doc); }
         } else {
-            quote! { element_struct!(#name, #tag_name); }
+            quote! { element_struct!(#name, #tag_name, #doc); }
         };
+
         let attributes = value
             .attributes
             .iter()
             .unique_by(|attribute| attribute.name.clone())
             .map(|attribute| {
                 let attribute_name = &attribute.name;
+                let doc = attribute
+                    .description
+                    .as_ref()
+                    .and_then(|description| description.as_str())
+                    .unwrap_or_default();
+
                 let method_name = format_ident!(
                     "{}",
                     if matches!(
@@ -80,8 +98,9 @@ fn main() {
                         attribute_name.to_snake_case()
                     }
                 );
+
                 quote! {
-                    element_attribute!(#name, #method_name, #attribute_name);
+                    element_attribute!(#name, #method_name, #attribute_name, #doc);
                 }
             });
         quote! {

@@ -1,6 +1,7 @@
 #[macro_export]
 macro_rules! element_struct {
-    ($name:ident, $tag_name:ident) => {
+    ($name:ident, $tag_name:ident, $doc:literal) => {
+        #[doc = $doc]
         pub struct $name {
             element: GenericElement,
         }
@@ -35,6 +36,7 @@ macro_rules! element_struct {
             }
         }
 
+        #[doc = $doc]
         pub fn $tag_name() -> $name {
             $name {
                 element: GenericElement {
@@ -49,7 +51,8 @@ macro_rules! element_struct {
 
 #[macro_export]
 macro_rules! void_element_struct {
-    ($name:ident, $tag_name:ident) => {
+    ($name:ident, $tag_name:ident, $doc:literal) => {
+        #[doc = $doc]
         pub struct $name {
             element: VoidElement,
         }
@@ -74,6 +77,7 @@ macro_rules! void_element_struct {
             }
         }
 
+        #[doc = $doc]
         pub fn $tag_name() -> $name {
             $name {
                 element: VoidElement {
@@ -87,8 +91,9 @@ macro_rules! void_element_struct {
 
 #[macro_export]
 macro_rules! element_attribute {
-    ($element_name:ident, $method_name:ident, $html_name:literal) => {
+    ($element_name:ident, $method_name:ident, $html_name:literal, $doc:literal) => {
         impl $element_name {
+            #[doc = $doc]
             pub fn $method_name(self, value: impl std::fmt::Display) -> Self {
                 self.attribute($html_name, value)
             }
