@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 use crate::node::prelude::*;
 use crate::{element_attribute, element_struct, void_element_struct};
 element_struct!(
@@ -13,6 +15,13 @@ element_struct!(
     head,
     "The head element represents a collection of metadata for the Document."
 );
+
+impl Head {
+    pub fn meta(self, name: impl Display, value: impl Display) -> Self {
+        self.child(meta().attribute("name", name).attribute("value", value))
+    }
+}
+
 element_attribute!(
     Head,
     profile,
