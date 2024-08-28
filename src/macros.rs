@@ -6,6 +6,12 @@ macro_rules! element_struct {
             element: GenericElement,
         }
 
+        impl std::fmt::Display for $name {
+            fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+                write!(f, "{}", self.element)
+            }
+        }
+
         impl From<$name> for Node {
             fn from(value: $name) -> Self {
                 Self::from(value.element)

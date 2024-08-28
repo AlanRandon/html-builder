@@ -7,9 +7,9 @@ element_struct!(
     html,
     "The html element represents the root of an HTML document."
 );
-element_attribute ! (Html , manifest , "manifest" , "Specifies the URI of a resource manifest indicating resources that should be cached locally. See [Using the application cache](https://developer.mozilla.org/en-US/docs/Web/HTML/Using_the_application_cache) for details.") ;
-element_attribute ! (Html , version , "version" , "Specifies the version of the HTML [Document Type Definition](https://developer.mozilla.org/en-US/docs/Glossary/DTD \"Document Type Definition: In HTML, the doctype is the required \"<!DOCTYPE html>\" preamble found at the top of all documents. Its sole purpose is to prevent a browser from switching into so-called “quirks mode” when rendering a document; that is, the \"<!DOCTYPE html>\" doctype ensures that the browser makes a best-effort attempt at following the relevant specifications, rather than using a different rendering mode that is incompatible with some specifications.\") that governs the current document. This attribute is not needed, because it is redundant with the version information in the document type declaration.") ;
-element_attribute ! (Html , xmlns , "xmlns" , "Specifies the XML Namespace of the document. Default value is `\"http://www.w3.org/1999/xhtml\"`. This is required in documents parsed with XML parsers, and optional in text/html documents.") ;
+element_attribute!(Html , manifest , "manifest" , "Specifies the URI of a resource manifest indicating resources that should be cached locally. See [Using the application cache](https://developer.mozilla.org/en-US/docs/Web/HTML/Using_the_application_cache) for details.") ;
+element_attribute!(Html , version , "version" , "Specifies the version of the HTML [Document Type Definition](https://developer.mozilla.org/en-US/docs/Glossary/DTD \"Document Type Definition: In HTML, the doctype is the required \"<!DOCTYPE html>\" preamble found at the top of all documents. Its sole purpose is to prevent a browser from switching into so-called “quirks mode” when rendering a document; that is, the \"<!DOCTYPE html>\" doctype ensures that the browser makes a best-effort attempt at following the relevant specifications, rather than using a different rendering mode that is incompatible with some specifications.\") that governs the current document. This attribute is not needed, because it is redundant with the version information in the document type declaration.") ;
+element_attribute!(Html , xmlns , "xmlns" , "Specifies the XML Namespace of the document. Default value is `\"http://www.w3.org/1999/xhtml\"`. This is required in documents parsed with XML parsers, and optional in text/html documents.") ;
 element_struct!(
     Head,
     head,
@@ -17,8 +17,21 @@ element_struct!(
 );
 
 impl Head {
-    pub fn meta(self, name: impl Display, value: impl Display) -> Self {
-        self.child(meta().attribute("name", name).attribute("value", value))
+    pub fn meta(self, name: impl Display, content: impl Display) -> Self {
+        self.child(meta().attribute("name", name).attribute("content", content))
+    }
+
+    pub fn charset(self, charset: impl Display) -> Self {
+        self.child(meta().charset(charset))
+    }
+
+    pub fn template(self) -> Self {
+        self.charset("utf-8")
+            .meta("viewport", "width=device-width, initial-scale=1")
+    }
+
+    pub fn style(self, css: impl Display) -> Self {
+        self.child(style().raw_text(css))
     }
 }
 

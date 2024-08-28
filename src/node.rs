@@ -110,6 +110,10 @@ pub trait Children: Element {
     fn text(self, text: impl Display) -> Self {
         self.child(Node::Text(text.to_string()))
     }
+
+    fn raw_text(self, text: impl Display) -> Self {
+        self.child(Node::RawText(text.to_string()))
+    }
 }
 
 pub(crate) mod prelude {
