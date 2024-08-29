@@ -2,6 +2,7 @@ use crate::Attributes;
 use html_escape::encode_safe as escape;
 use std::fmt::Display;
 
+#[derive(Debug, Clone)]
 pub enum Node {
     Element(GenericElement),
     VoidElement(VoidElement),
@@ -32,6 +33,7 @@ impl Display for Node {
     }
 }
 
+#[derive(Debug, Clone)]
 pub struct GenericElement {
     pub tag_name: String,
     pub attributes: Attributes,
@@ -55,6 +57,7 @@ impl Display for GenericElement {
     }
 }
 
+#[derive(Debug, Clone)]
 pub struct VoidElement {
     pub tag_name: String,
     pub attributes: Attributes,
@@ -90,7 +93,7 @@ pub trait Children: Element {
     where
         Node: From<T>;
 
-    fn children<T>(mut self, children: impl Iterator<Item = T>) -> Self
+    fn children<T>(mut self, children: impl IntoIterator<Item = T>) -> Self
     where
         Node: From<T>,
     {
@@ -98,13 +101,6 @@ pub trait Children: Element {
             self = self.child(child);
         }
         self
-    }
-
-    fn optional_child<T>(self, child: Option<T>) -> Self
-    where
-        Node: From<T>,
-    {
-        self.children(child.into_iter())
     }
 
     fn text(self, text: impl Display) -> Self {

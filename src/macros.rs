@@ -2,6 +2,7 @@
 macro_rules! element_struct {
     ($name:ident, $tag_name:ident, $doc:literal) => {
         #[doc = $doc]
+        #[derive(Debug, Clone)]
         pub struct $name {
             element: GenericElement,
         }
