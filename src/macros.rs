@@ -1,6 +1,9 @@
+use crate::VoidElement;
+
 #[macro_export]
 macro_rules! element_struct {
     ($name:ident, $tag_name:ident, $doc:literal) => {
+        #[allow(clippy::empty_docs)]
         #[doc = $doc]
         #[derive(Debug, Clone)]
         pub struct $name {
@@ -43,14 +46,15 @@ macro_rules! element_struct {
             }
         }
 
-        #[doc = $doc]
-        pub fn $tag_name() -> $name {
-            $name {
-                element: GenericElement {
-                    tag_name: stringify!($tag_name).to_string(),
-                    attributes: $crate::Attributes::default(),
-                    children: Vec::new(),
-                },
+        impl $name {
+            fn new_empty() -> Self {
+                $name {
+                    element: GenericElement {
+                        tag_name: stringify!($tag_name).to_string(),
+                        attributes: $crate::Attributes::default(),
+                        children: Vec::new(),
+                    },
+                }
             }
         }
     };
@@ -62,6 +66,17 @@ macro_rules! void_element_struct {
         #[doc = $doc]
         pub struct $name {
             element: VoidElement,
+        }
+
+        impl $name {
+            fn new_empty() -> Self {
+                Self {
+                    element: VoidElement {
+                        attributes: $crate::Attributes::default(),
+                        tag_name: stringify!($tag_name).to_string(),
+                    },
+                }
+            }
         }
 
         impl From<$name> for Node {
@@ -83,16 +98,6 @@ macro_rules! void_element_struct {
                 self
             }
         }
-
-        #[doc = $doc]
-        pub fn $tag_name() -> $name {
-            $name {
-                element: VoidElement {
-                    tag_name: stringify!($tag_name).to_string(),
-                    attributes: $crate::Attributes::default(),
-                },
-            }
-        }
     };
 }
 
@@ -103,6 +108,18 @@ macro_rules! element_attribute {
             #[doc = $doc]
             pub fn $method_name(self, value: impl std::fmt::Display) -> Self {
                 self.attribute($html_name, value)
+            }
+        }
+    };
+}
+
+#[macro_export]
+macro_rules! element_boolean_attribute {
+    ($element_name:ident, $method_name:ident, $html_name:literal, $doc:literal) => {
+        impl $element_name {
+            #[doc = $doc]
+            pub fn $method_name(self) -> Self {
+                self.attribute($html_name, $html_name)
             }
         }
     };

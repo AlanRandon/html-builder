@@ -1,7 +1,7 @@
 use std::fmt::Display;
 
 use crate::node::prelude::*;
-use crate::{element_attribute, element_struct, void_element_struct};
+use crate::{element_attribute, element_boolean_attribute, element_struct, void_element_struct};
 element_struct!(
     Html,
     html,
@@ -10,19 +10,31 @@ element_struct!(
 element_attribute!(Html , manifest , "manifest" , "Specifies the URI of a resource manifest indicating resources that should be cached locally. See [Using the application cache](https://developer.mozilla.org/en-US/docs/Web/HTML/Using_the_application_cache) for details.") ;
 element_attribute!(Html , version , "version" , "Specifies the version of the HTML [Document Type Definition](https://developer.mozilla.org/en-US/docs/Glossary/DTD \"Document Type Definition: In HTML, the doctype is the required \"<!DOCTYPE html>\" preamble found at the top of all documents. Its sole purpose is to prevent a browser from switching into so-called “quirks mode” when rendering a document; that is, the \"<!DOCTYPE html>\" doctype ensures that the browser makes a best-effort attempt at following the relevant specifications, rather than using a different rendering mode that is incompatible with some specifications.\") that governs the current document. This attribute is not needed, because it is redundant with the version information in the document type declaration.") ;
 element_attribute!(Html , xmlns , "xmlns" , "Specifies the XML Namespace of the document. Default value is `\"http://www.w3.org/1999/xhtml\"`. This is required in documents parsed with XML parsers, and optional in text/html documents.") ;
+pub fn html() -> Html {
+    Html::new_empty()
+}
+
 element_struct!(
     Head,
     head,
     "The head element represents a collection of metadata for the Document."
 );
 
+pub fn head() -> Head {
+    Head::new_empty()
+}
+
 impl Head {
     pub fn meta(self, name: impl Display, content: impl Display) -> Self {
-        self.child(meta().attribute("name", name).attribute("content", content))
+        self.child(
+            Meta::new_empty()
+                .attribute("name", name)
+                .attribute("content", content),
+        )
     }
 
     pub fn charset(self, charset: impl Display) -> Self {
-        self.child(meta().charset(charset))
+        self.child(Meta::new_empty().charset(charset))
     }
 
     pub fn template(self) -> Self {
@@ -31,7 +43,11 @@ impl Head {
     }
 
     pub fn style(self, css: impl Display) -> Self {
-        self.child(style().raw_text(css))
+        self.child(style(css))
+    }
+
+    pub fn title(self, title: impl Display) -> Self {
+        self.child(Title::new_empty().text(title))
     }
 }
 
@@ -50,7 +66,7 @@ void_element_struct!(
     link,
     "The link element allows authors to link their document to other resources."
 );
-element_attribute ! (Link , href , "href" , "This attribute specifies the [URL](https://developer.mozilla.org/en-US/docs/Glossary/URL \"URL: Uniform Resource Locator (URL) is a text string specifying where a resource can be found on the Internet.\") of the linked resource. A URL can be absolute or relative.") ;
+element_attribute!(Link , href , "href" , "This attribute specifies the [URL](https://developer.mozilla.org/en-US/docs/Glossary/URL \"URL: Uniform Resource Locator (URL) is a text string specifying where a resource can be found on the Internet.\") of the linked resource. A URL can be absolute or relative.") ;
 element_attribute ! (Link , crossorigin , "crossorigin" , "This enumerated attribute indicates whether [CORS](https://developer.mozilla.org/en-US/docs/Glossary/CORS \"CORS: CORS (Cross-Origin Resource Sharing) is a system, consisting of transmitting HTTP headers, that determines whether browsers block frontend JavaScript code from accessing responses for cross-origin requests.\") must be used when fetching the resource. [CORS-enabled images](https://developer.mozilla.org/en-US/docs/Web/HTML/CORS_Enabled_Image) can be reused in the [`<canvas>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/canvas \"Use the HTML <canvas> element with either the canvas scripting API or the WebGL API to draw graphics and animations.\") element without being _tainted_. The allowed values are:\n\n`anonymous`\n\nA cross-origin request (i.e. with an [`Origin`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Origin \"The Origin request header indicates where a fetch originates from. It doesn't include any path information, but only the server name. It is sent with CORS requests, as well as with POST requests. It is similar to the Referer header, but, unlike this header, it doesn't disclose the whole path.\") HTTP header) is performed, but no credential is sent (i.e. no cookie, X.509 certificate, or HTTP Basic authentication). If the server does not give credentials to the origin site (by not setting the [`Access-Control-Allow-Origin`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Origin \"The Access-Control-Allow-Origin response header indicates whether the response can be shared with requesting code from the given origin.\") HTTP header) the image will be tainted and its usage restricted.\n\n`use-credentials`\n\nA cross-origin request (i.e. with an `Origin` HTTP header) is performed along with a credential sent (i.e. a cookie, certificate, and/or HTTP Basic authentication is performed). If the server does not give credentials to the origin site (through [`Access-Control-Allow-Credentials`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Credentials \"The Access-Control-Allow-Credentials response header tells browsers whether to expose the response to frontend JavaScript code when the request's credentials mode (Request.credentials) is \"include\".\") HTTP header), the resource will be _tainted_ and its usage restricted.\n\nIf the attribute is not present, the resource is fetched without a [CORS](https://developer.mozilla.org/en-US/docs/Glossary/CORS \"CORS: CORS (Cross-Origin Resource Sharing) is a system, consisting of transmitting HTTP headers, that determines whether browsers block frontend JavaScript code from accessing responses for cross-origin requests.\") request (i.e. without sending the `Origin` HTTP header), preventing its non-tainted usage. If invalid, it is handled as if the enumerated keyword **anonymous** was used. See [CORS settings attributes](https://developer.mozilla.org/en-US/docs/Web/HTML/CORS_settings_attributes) for additional information.") ;
 element_attribute ! (Link , rel , "rel" , "This attribute names a relationship of the linked document to the current document. The attribute must be a space-separated list of the [link types values](https://developer.mozilla.org/en-US/docs/Web/HTML/Link_types).") ;
 element_attribute ! (Link , media , "media" , "This attribute specifies the media that the linked resource applies to. Its value must be a media type / [media query](https://developer.mozilla.org/en-US/docs/Web/CSS/Media_queries). This attribute is mainly useful when linking to external stylesheets — it allows the user agent to pick the best adapted one for the device it runs on.\n\n**Notes:**\n\n*   In HTML 4, this can only be a simple white-space-separated list of media description literals, i.e., [media types and groups](https://developer.mozilla.org/en-US/docs/Web/CSS/@media), where defined and allowed as values for this attribute, such as `print`, `screen`, `aural`, `braille`. HTML5 extended this to any kind of [media queries](https://developer.mozilla.org/en-US/docs/Web/CSS/Media_queries), which are a superset of the allowed values of HTML 4.\n*   Browsers not supporting [CSS3 Media Queries](https://developer.mozilla.org/en-US/docs/Web/CSS/Media_queries) won't necessarily recognize the adequate link; do not forget to set fallback links, the restricted set of media queries defined in HTML 4.") ;
@@ -68,12 +84,17 @@ element_attribute ! (Meta , http_equiv , "http-equiv" , "Defines a pragma direct
 element_attribute ! (Meta , content , "content" , "This attribute contains the value for the [`http-equiv`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/meta#attr-http-equiv) or [`name`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/meta#attr-name) attribute, depending on which is used.") ;
 element_attribute ! (Meta , charset , "charset" , "This attribute declares the page's character encoding. It must contain a [standard IANA MIME name for character encodings](https://www.iana.org/assignments/character-sets). Although the standard doesn't request a specific encoding, it suggests:\n\n*   Authors are encouraged to use [`UTF-8`](https://developer.mozilla.org/en-US/docs/Glossary/UTF-8).\n*   Authors should not use ASCII-incompatible encodings to avoid security risk: browsers not supporting them may interpret harmful content as HTML. This happens with the `JIS_C6226-1983`, `JIS_X0212-1990`, `HZ-GB-2312`, `JOHAB`, the ISO-2022 family and the EBCDIC family.\n\n**Note:** ASCII-incompatible encodings are those that don't map the 8-bit code points `0x20` to `0x7E` to the `0x0020` to `0x007E` Unicode code points)\n\n*   Authors **must not** use `CESU-8`, `UTF-7`, `BOCU-1` and/or `SCSU` as [cross-site scripting](https://developer.mozilla.org/en-US/docs/Glossary/Cross-site_scripting) attacks with these encodings have been demonstrated.\n*   Authors should not use `UTF-32` because not all HTML5 encoding algorithms can distinguish it from `UTF-16`.\n\n**Notes:**\n\n*   The declared character encoding must match the one the page was saved with to avoid garbled characters and security holes.\n*   The [`<meta>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/meta \"The HTML <meta> element represents metadata that cannot be represented by other HTML meta-related elements, like <base>, <link>, <script>, <style> or <title>.\") element declaring the encoding must be inside the [`<head>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/head \"The HTML <head> element provides general information (metadata) about the document, including its title and links to its\u{a0}scripts and style sheets.\") element and **within the first 1024 bytes** of the HTML as some browsers only look at those bytes before choosing an encoding.\n*   This [`<meta>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/meta \"The HTML <meta> element represents metadata that cannot be represented by other HTML meta-related elements, like <base>, <link>, <script>, <style> or <title>.\") element is only one part of the [algorithm to determine a page's character set](https://www.whatwg.org/specs/web-apps/current-work/multipage/parsing.html#encoding-sniffing-algorithm \"Algorithm charset page\"). The [`Content-Type` header](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Type) and any [Byte-Order Marks](https://developer.mozilla.org/en-US/docs/Glossary/Byte-Order_Mark \"The definition of that term (Byte-Order Marks) has not been written yet; please consider contributing it!\") override this element.\n*   It is strongly recommended to define the character encoding. If a page's encoding is undefined, cross-scripting techniques are possible, such as the [`UTF-7` fallback cross-scripting technique](https://code.google.com/p/doctype-mirror/wiki/ArticleUtf7).\n*   The [`<meta>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/meta \"The HTML <meta> element represents metadata that cannot be represented by other HTML meta-related elements, like <base>, <link>, <script>, <style> or <title>.\") element with a `charset` attribute is a synonym for the pre-HTML5 `<meta http-equiv=\"Content-Type\" content=\"text/html; charset=_IANAcharset_\">`, where _`IANAcharset`_ contains the value of the equivalent [`charset`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/meta#attr-charset) attribute. This syntax is still allowed, although no longer recommended.") ;
 element_attribute ! (Meta , scheme , "scheme" , "This attribute defines the scheme in which metadata is described. A scheme is a context leading to the correct interpretations of the [`content`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/meta#attr-content) value, like a format.\n\n**Warning:** Do not use this value, as it is obsolete. There is no replacement as there was no real usage for it.") ;
-element_struct ! (Style , style , "The style element allows authors to embed style information in their documents. The style element is one of several inputs to the styling processing model. The element does not represent content for the user.") ;
+element_struct!(Style, style, "The style element allows authors to embed style information in their documents. The style element is one of several inputs to the styling processing model. The element does not represent content for the user");
 element_attribute ! (Style , media , "media" , "This attribute defines which media the style should be applied to. Its value is a [media query](https://developer.mozilla.org/en-US/docs/Web/Guide/CSS/Media_queries), which defaults to `all` if the attribute is missing.") ;
 element_attribute ! (Style , nonce , "nonce" , "A cryptographic nonce (number used once) used to whitelist inline styles in a [style-src Content-Security-Policy](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/style-src). The server must generate a unique nonce value each time it transmits a policy. It is critical to provide a nonce that cannot be guessed as bypassing a resource’s policy is otherwise trivial.") ;
 element_attribute ! (Style , r#type , "type" , "This attribute defines the styling language as a MIME type (charset should not be specified). This attribute is optional and defaults to `text/css` if it is not specified — there is very little reason to include this in modern web documents.") ;
 element_attribute!(Style, scoped, "scoped", "");
 element_attribute ! (Style , title , "title" , "This attribute specifies [alternative style sheet](https://developer.mozilla.org/en-US/docs/Web/CSS/Alternative_style_sheets) sets.") ;
+
+pub fn style(css: impl Display) -> Style {
+    Style::new_empty().raw_text(css)
+}
+
 element_struct!(
     Body,
     body,
@@ -194,20 +215,55 @@ element_attribute ! (Body , rightmargin , "rightmargin" , "The margin of the rig
 element_attribute ! (Body , text , "text" , "Foreground color of text. _This method is non-conforming, use CSS [`color`](https://developer.mozilla.org/en-US/docs/Web/CSS/color \"The color CSS property sets the foreground color value of an element's text and text decorations, and sets the currentcolor value.\") property on the element instead._") ;
 element_attribute ! (Body , topmargin , "topmargin" , "The margin of the top of the body. _This method is non-conforming, use CSS [`margin-top`](https://developer.mozilla.org/en-US/docs/Web/CSS/margin-top \"The margin-top CSS property sets the margin area on the top of an element. A positive value places it farther from its neighbors, while a negative value places it closer.\") property on the element instead._") ;
 element_attribute ! (Body , vlink , "vlink" , "Color of text for visited hypertext links. _This method is non-conforming, use CSS [`color`](https://developer.mozilla.org/en-US/docs/Web/CSS/color \"The color CSS property sets the foreground color value of an element's text and text decorations, and sets the currentcolor value.\") property in conjunction with the [`:visited`](https://developer.mozilla.org/en-US/docs/Web/CSS/:visited \"The :visited CSS pseudo-class represents links that the user has already visited. For privacy reasons, the styles that can be modified using this selector are very limited.\") pseudo-class instead._") ;
+pub fn body() -> Body {
+    Body::new_empty()
+}
 element_struct ! (Article , article , "The article element represents a complete, or self-contained, composition in a document, page, application, or site and that is, in principle, independently distributable or reusable, e.g. in syndication. This could be a forum post, a magazine or newspaper article, a blog entry, a user-submitted comment, an interactive widget or gadget, or any other independent item of content. Each article should be identified, typically by including a heading (h1–h6 element) as a child of the article element.") ;
 element_struct ! (Section , section , "The section element represents a generic section of a document or application. A section, in this context, is a thematic grouping of content. Each section should be identified, typically by including a heading ( h1- h6 element) as a child of the section element.") ;
 element_struct ! (Nav , nav , "The nav element represents a section of a page that links to other pages or to parts within the page: a section with navigation links.") ;
 element_struct ! (Aside , aside , "The aside element represents a section of a page that consists of content that is tangentially related to the content around the aside element, and which could be considered separate from that content. Such sections are often represented as sidebars in printed typography.") ;
 element_struct!(H1, h1, "The h1 element represents a section heading.");
+pub fn h1(text: impl Display) -> H1 {
+    H1::new_empty().text(text)
+}
 element_struct!(H2, h2, "The h2 element represents a section heading.");
+
+pub fn h2(text: impl Display) -> H2 {
+    H2::new_empty().text(text)
+}
 element_struct!(H3, h3, "The h3 element represents a section heading.");
+
+pub fn h3(text: impl Display) -> H3 {
+    H3::new_empty().text(text)
+}
 element_struct!(H4, h4, "The h4 element represents a section heading.");
+
+pub fn h4(text: impl Display) -> H4 {
+    H4::new_empty().text(text)
+}
 element_struct!(H5, h5, "The h5 element represents a section heading.");
+
+pub fn h5(text: impl Display) -> H5 {
+    H5::new_empty().text(text)
+}
 element_struct!(H6, h6, "The h6 element represents a section heading.");
+
+pub fn h6(text: impl Display) -> H6 {
+    H6::new_empty().text(text)
+}
 element_struct ! (Header , header , "The header element represents introductory content for its nearest ancestor sectioning content or sectioning root element. A header typically contains a group of introductory or navigational aids. When the nearest ancestor sectioning content or sectioning root element is the body element, then it applies to the whole page.") ;
+pub fn header() -> Header {
+    Header::new_empty()
+}
 element_struct ! (Footer , footer , "The footer element represents a footer for its nearest ancestor sectioning content or sectioning root element. A footer typically contains information about its section such as who wrote it, links to related documents, copyright data, and the like.") ;
+pub fn footer() -> Footer {
+    Footer::new_empty()
+}
 element_struct ! (Address , address , "The address element represents the contact information for its nearest article or body element ancestor. If that is the body element, then the contact information applies to the document as a whole.") ;
 element_struct!(P, p, "The p element represents a paragraph.");
+pub fn p(text: impl Display) -> P {
+    P::new_empty().text(text)
+}
 void_element_struct ! (Hr , hr , "The hr element represents a paragraph-level thematic break, e.g. a scene change in a story, or a transition to another topic within a section of a reference book.") ;
 element_attribute ! (Hr , align , "align" , "Sets the alignment of the rule on the page. If no value is specified, the default value is `left`.") ;
 element_attribute!(
@@ -252,7 +308,14 @@ element_attribute ! (Dd , nowrap , "nowrap" , "If the value of this attribute is
 element_struct ! (Figure , figure , "The figure element represents some flow content, optionally with a caption, that is self-contained (like a complete sentence) and is typically referenced as a single unit from the main flow of the document.") ;
 element_struct ! (Figcaption , figcaption , "The figcaption element represents a caption or legend for the rest of the contents of the figcaption element's parent figure element, if any.") ;
 element_struct ! (Main , main , "The main element represents the main content of the body of a document or application. The main content area consists of content that is directly related to or expands upon the central topic of a document or central functionality of an application.") ;
+pub fn main() -> Main {
+    Main::new_empty()
+}
+
 element_struct ! (Div , div , "The div element has no special meaning at all. It represents its children. It can be used with the class, lang, and title attributes to mark up semantics common to a group of consecutive elements.") ;
+pub fn div() -> Div {
+    Div::new_empty()
+}
 element_struct ! (A , a , "If the a element has an href attribute, then it represents a hyperlink (a hypertext anchor) labeled by its contents.") ;
 element_attribute ! (A , href , "href" , "Contains a URL or a URL fragment that the hyperlink points to.\nA URL fragment is a name preceded by a hash mark (`#`), which specifies an internal target location (an [`id`](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes#attr-id) of an HTML element) within the current document. URLs are not restricted to Web (HTTP)-based documents, but can use any protocol supported by the browser. For example, [`file:`](https://en.wikipedia.org/wiki/File_URI_scheme), `ftp:`, and `mailto:` work in most browsers.\n\n**Note:** You can use `href=\"#top\"` or the empty fragment `href=\"#\"` to link to the top of the current page. [This behavior is specified by HTML5](https://www.w3.org/TR/html5/single-page.html#scroll-to-fragid).") ;
 element_attribute ! (A , target , "target" , "Specifies where to display the linked URL. It is a name of, or keyword for, a _browsing context_: a tab, window, or `<iframe>`. The following keywords have special meanings:\n\n*   `_self`: Load the URL into the same browsing context as the current one. This is the default behavior.\n*   `_blank`: Load the URL into a new browsing context. This is usually a tab, but users can configure browsers to use new windows instead.\n*   `_parent`: Load the URL into the parent browsing context of the current one. If there is no parent, this behaves the same way as `_self`.\n*   `_top`: Load the URL into the top-level browsing context (that is, the \"highest\" browsing context that is an ancestor of the current one, and has no parent). If there is no parent, this behaves the same way as `_self`.\n\n**Note:** When using `target`, consider adding `rel=\"noreferrer\"` to avoid exploitation of the `window.opener` API.\n\n**Note:** Linking to another page using `target=\"_blank\"` will run the new page on the same process as your page. If the new page is executing expensive JS, your page's performance may suffer. To avoid this use `rel=\"noopener\"`.") ;
@@ -315,6 +378,9 @@ element_struct ! (Bdi , bdi , "The bdi element represents a span of text that is
 element_struct ! (Bdo , bdo , "The bdo element represents explicit text directionality formatting control for its children. It allows authors to override the Unicode bidirectional algorithm by explicitly specifying a direction override. [BIDI]") ;
 element_attribute ! (Bdo , dir , "dir" , "The direction in which text should be rendered in this element's contents. Possible values are:\n\n*   `ltr`: Indicates that the text should go in a left-to-right direction.\n*   `rtl`: Indicates that the text should go in a right-to-left direction.") ;
 element_struct ! (Span , span , "The span element doesn't mean anything on its own, but can be useful when used together with the global attributes, e.g. class, lang, or dir. It represents its children.") ;
+pub fn span() -> Span {
+    Span::new_empty()
+}
 void_element_struct!(Br, br, "The br element represents a line break.");
 element_attribute!(
     Br,
@@ -583,26 +649,51 @@ element_attribute ! (Th , axis , "axis" , "This attribute contains a list of spa
 element_attribute ! (Th , bgcolor , "bgcolor" , "This attribute defines the background color of each cell in a column. It consists of a 6-digit hexadecimal code as defined in [sRGB](https://www.w3.org/Graphics/Color/sRGB) and is prefixed by '#'. This attribute may be used with one of sixteen predefined color strings:\n\n\u{a0}\n\n`black` = \"#000000\"\n\n\u{a0}\n\n`green` = \"#008000\"\n\n\u{a0}\n\n`silver` = \"#C0C0C0\"\n\n\u{a0}\n\n`lime` = \"#00FF00\"\n\n\u{a0}\n\n`gray` = \"#808080\"\n\n\u{a0}\n\n`olive` = \"#808000\"\n\n\u{a0}\n\n`white` = \"#FFFFFF\"\n\n\u{a0}\n\n`yellow` = \"#FFFF00\"\n\n\u{a0}\n\n`maroon` = \"#800000\"\n\n\u{a0}\n\n`navy` = \"#000080\"\n\n\u{a0}\n\n`red` = \"#FF0000\"\n\n\u{a0}\n\n`blue` = \"#0000FF\"\n\n\u{a0}\n\n`purple` = \"#800080\"\n\n\u{a0}\n\n`teal` = \"#008080\"\n\n\u{a0}\n\n`fuchsia` = \"#FF00FF\"\n\n\u{a0}\n\n`aqua` = \"#00FFFF\"\n\n**Note:** Do not use this attribute, as it is non-standard and only implemented in some versions of Microsoft Internet Explorer: The [`<th>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/th \"The HTML <th> element defines a cell as header of a group of table cells. The exact nature of this group is defined by the scope and headers attributes.\") element should be styled using [CSS](https://developer.mozilla.org/en-US/docs/Web/CSS). To create a similar effect use the [`background-color`](https://developer.mozilla.org/en-US/docs/Web/CSS/background-color \"The background-color CSS property sets the background color of an element.\") property in [CSS](https://developer.mozilla.org/en-US/docs/Web/CSS) instead.") ;
 element_struct ! (Form , form , "The form element represents a collection of form-associated elements, some of which can represent editable values that can be submitted to a server for processing.") ;
 element_attribute ! (Form , accept_charset , "accept-charset" , "A space- or comma-delimited list of character encodings that the server accepts. The browser uses them in the order in which they are listed. The default value, the reserved string `\"UNKNOWN\"`, indicates the same encoding as that of the document containing the form element.  \nIn previous versions of HTML, the different character encodings could be delimited by spaces or commas. In HTML5, only spaces are allowed as delimiters.") ;
-element_attribute ! (Form , action , "action" , "The URI of a program that processes the form information. This value can be overridden by a [`formaction`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/button#attr-formaction) attribute on a [`<button>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/button \"The HTML <button> element represents a clickable button, which can be used in forms or anywhere in a document that needs simple, standard button functionality.\") or [`<input>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input \"The HTML <input> element is used to create interactive controls for web-based forms in order to accept data from the user; a wide variety of types of input data and control widgets are available, depending on the device and user agent.\") element.") ;
 element_attribute ! (Form , autocomplete , "autocomplete" , "Indicates whether input elements can by default have their values automatically completed by the browser. This setting can be overridden by an `autocomplete` attribute on an element belonging to the form. Possible values are:\n\n*   `off`: The user must explicitly enter a value into each field for every use, or the document provides its own auto-completion method; the browser does not automatically complete entries.\n*   `on`: The browser can automatically complete values based on values that the user has previously entered in the form.\n\nFor most modern browsers (including Firefox 38+, Google Chrome 34+, IE 11+) setting the autocomplete attribute will not prevent a browser's password manager from asking the user if they want to store login fields (username and password), if the user permits the storage the browser will autofill the login the next time the user visits the page. See [The autocomplete attribute and login fields](https://developer.mozilla.org/en-US/docs/Web/Security/Securing_your_site/Turning_off_form_autocompletion#The_autocomplete_attribute_and_login_fields).\n**Note:** If you set `autocomplete` to `off` in a form because the document provides its own auto-completion, then you should also set `autocomplete` to `off` for each of the form's `input` elements that the document can auto-complete. For details, see the note regarding Google Chrome in the [Browser Compatibility chart](#compatChart).") ;
 element_attribute ! (Form , enctype , "enctype" , "When the value of the `method` attribute is `post`, enctype is the [MIME type](https://en.wikipedia.org/wiki/Mime_type) of content that is used to submit the form to the server. Possible values are:\n\n*   `application/x-www-form-urlencoded`: The default value if the attribute is not specified.\n*   `multipart/form-data`: The value used for an [`<input>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input \"The HTML <input> element is used to create interactive controls for web-based forms in order to accept data from the user; a wide variety of types of input data and control widgets are available, depending on the device and user agent.\") element with the `type` attribute set to \"file\".\n*   `text/plain`: (HTML5)\n\nThis value can be overridden by a [`formenctype`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/button#attr-formenctype) attribute on a [`<button>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/button \"The HTML <button> element represents a clickable button, which can be used in forms or anywhere in a document that needs simple, standard button functionality.\") or [`<input>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input \"The HTML <input> element is used to create interactive controls for web-based forms in order to accept data from the user; a wide variety of types of input data and control widgets are available, depending on the device and user agent.\") element.") ;
-element_attribute ! (Form , method , "method" , "The [HTTP](https://developer.mozilla.org/en-US/docs/Web/HTTP) method that the browser uses to submit the form. Possible values are:\n\n*   `post`: Corresponds to the HTTP [POST method](https://www.w3.org/Protocols/rfc2616/rfc2616-sec9.html#sec9.5) ; form data are included in the body of the form and sent to the server.\n*   `get`: Corresponds to the HTTP [GET method](https://www.w3.org/Protocols/rfc2616/rfc2616-sec9.html#sec9.3); form data are appended to the `action` attribute URI with a '?' as separator, and the resulting URI is sent to the server. Use this method when the form has no side-effects and contains only ASCII characters.\n*   `dialog`: Use when the form is inside a\u{a0}[`<dialog>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/dialog \"The HTML <dialog> element represents a dialog box or other interactive component, such as an inspector or window.\") element to close the dialog when submitted.\n\nThis value can be overridden by a [`formmethod`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/button#attr-formmethod) attribute on a [`<button>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/button \"The HTML <button> element represents a clickable button, which can be used in forms or anywhere in a document that needs simple, standard button functionality.\") or [`<input>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input \"The HTML <input> element is used to create interactive controls for web-based forms in order to accept data from the user; a wide variety of types of input data and control widgets are available, depending on the device and user agent.\") element.") ;
 element_attribute ! (Form , name , "name" , "The name of the form. In HTML 4, its use is deprecated (`id` should be used instead). It must be unique among the forms in a document and not just an empty string in HTML 5.") ;
 element_attribute ! (Form , novalidate , "novalidate" , "This Boolean attribute indicates that the form is not to be validated when submitted. If this attribute is not specified (and therefore the form is validated), this default setting can be overridden by a [`formnovalidate`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/button#attr-formnovalidate) attribute on a [`<button>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/button \"The HTML <button> element represents a clickable button, which can be used in forms or anywhere in a document that needs simple, standard button functionality.\") or [`<input>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input \"The HTML <input> element is used to create interactive controls for web-based forms in order to accept data from the user; a wide variety of types of input data and control widgets are available, depending on the device and user agent.\") element belonging to the form.") ;
 element_attribute ! (Form , target , "target" , "A name or keyword indicating where to display the response that is received after submitting the form. In HTML 4, this is the name/keyword for a frame. In HTML5, it is a name/keyword for a _browsing context_ (for example, tab, window, or inline frame). The following keywords have special meanings:\n\n*   `_self`: Load the response into the same HTML 4 frame (or HTML5 browsing context) as the current one. This value is the default if the attribute is not specified.\n*   `_blank`: Load the response into a new unnamed HTML 4 window or HTML5 browsing context.\n*   `_parent`: Load the response into the HTML 4 frameset parent of the current frame, or HTML5 parent browsing context of the current one. If there is no parent, this option behaves the same way as `_self`.\n*   `_top`: HTML 4: Load the response into the full original window, and cancel all other frames. HTML5: Load the response into the top-level browsing context (i.e., the browsing context that is an ancestor of the current one, and has no parent). If there is no parent, this option behaves the same way as `_self`.\n*   _iframename_: The response is displayed in a named [`<iframe>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/iframe \"The HTML Inline Frame element (<iframe>) represents a nested browsing context, embedding another HTML page into the current one.\").\n\nHTML5: This value can be overridden by a [`formtarget`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/button#attr-formtarget) attribute on a [`<button>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/button \"The HTML <button> element represents a clickable button, which can be used in forms or anywhere in a document that needs simple, standard button functionality.\") or [`<input>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input \"The HTML <input> element is used to create interactive controls for web-based forms in order to accept data from the user; a wide variety of types of input data and control widgets are available, depending on the device and user agent.\") element.") ;
 element_attribute ! (Form , accept , "accept" , "A comma-separated list of content types that the server accepts.\n\n**Usage note:** This attribute has been removed in HTML5 and should no longer be used. Instead, use the [`accept`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input#attr-accept) attribute of the specific [`<input>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input \"The HTML <input> element is used to create interactive controls for web-based forms in order to accept data from the user; a wide variety of types of input data and control widgets are available, depending on the device and user agent.\") element.") ;
 element_attribute ! (Form , autocapitalize , "autocapitalize" , "This is a nonstandard attribute used by iOS Safari Mobile which controls whether and how the text value for textual form control descendants should be automatically capitalized as it is entered/edited by the user. If the `autocapitalize` attribute is specified on an individual form control descendant, it trumps the form-wide `autocapitalize` setting. The non-deprecated values are available in iOS 5 and later. The default value is `sentences`. Possible values are:\n\n*   `none`: Completely disables automatic capitalization\n*   `sentences`: Automatically capitalize the first letter of sentences.\n*   `words`: Automatically capitalize the first letter of words.\n*   `characters`: Automatically capitalize all characters.\n*   `on`: Deprecated since iOS 5.\n*   `off`: Deprecated since iOS 5.") ;
+pub fn form(method: FormMethod, action: impl Display) -> Form {
+    Form::new_empty()
+        .attribute("method", method)
+        .attribute("action", action)
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum FormMethod {
+    Get,
+    Post,
+    Dialog,
+}
+
+impl Display for FormMethod {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Get => write!(f, "get"),
+            Self::Post => write!(f, "post"),
+            Self::Dialog => write!(f, "dialog"),
+        }
+    }
+}
+
 element_struct ! (Label , label , "The label element represents a caption in a user interface. The caption can be associated with a specific form control, known as the label element's labeled control, either using the for attribute, or by putting the form control inside the label element itself.") ;
 element_attribute ! (Label , form , "form" , "The [`<form>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/form \"The HTML <form> element represents a document section that contains interactive controls for submitting information to a web server.\") element with which the label is associated (its _form owner_). If specified, the value of the attribute is the `id` of a [`<form>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/form \"The HTML <form> element represents a document section that contains interactive controls for submitting information to a web server.\") element in the same document. This lets you place label elements anywhere within a document, not just as descendants of their form elements.") ;
-element_attribute ! (Label , r#for , "for" , "The [`id`](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes#attr-id) of a [labelable](https://developer.mozilla.org/en-US/docs/Web/Guide/HTML/Content_categories#Form_labelable) form-related element in the same document as the `<label>` element. The first element in the document with an `id` matching the value of the `for` attribute is the _labeled control_ for this label element, if it is a labelable element. If it is\u{a0}not labelable then the `for` attribute has no effect. If there are other elements which also match the `id` value, later in the document, they are not considered.\n\n**Note**: A `<label>` element can have both a `for` attribute and a contained control element, as long as the `for` attribute points to the contained control element.") ;
+/// # Arguments
+/// | target input | the `for attribute` |
+pub fn label(target_input: impl Display) -> Label {
+    Label::new_empty().attribute("for", target_input)
+}
 void_element_struct ! (Input , input , "The input element represents a typed data field, usually with a form control to allow the user to edit the data.") ;
 element_attribute!(Input, accept, "accept", "");
 element_attribute!(Input, alt, "alt", "");
 element_attribute!(Input, autocomplete, "autocomplete", "");
 element_attribute!(Input, autofocus, "autofocus", "");
-element_attribute!(Input, checked, "checked", "");
+element_boolean_attribute!(Input, checked, "checked", "");
 element_attribute!(Input, dirname, "dirname", "");
-element_attribute!(Input, disabled, "disabled", "");
+element_boolean_attribute!(Input, disabled, "disabled", "");
 element_attribute!(Input, form, "form", "");
 element_attribute!(Input, formaction, "formaction", "");
 element_attribute!(Input, formenctype, "formenctype", "");
@@ -616,18 +707,85 @@ element_attribute!(Input, max, "max", "");
 element_attribute!(Input, maxlength, "maxlength", "");
 element_attribute!(Input, min, "min", "");
 element_attribute!(Input, minlength, "minlength", "");
-element_attribute!(Input, multiple, "multiple", "");
+element_boolean_attribute!(Input, multiple, "multiple", "");
 element_attribute!(Input, name, "name", "");
 element_attribute!(Input, pattern, "pattern", "");
 element_attribute!(Input, placeholder, "placeholder", "");
-element_attribute!(Input, readonly, "readonly", "");
-element_attribute!(Input, required, "required", "");
+element_boolean_attribute!(Input, readonly, "readonly", "");
+element_boolean_attribute!(Input, required, "required", "");
 element_attribute!(Input, size, "size", "");
 element_attribute!(Input, src, "src", "");
 element_attribute!(Input, step, "step", "");
-element_attribute!(Input, r#type, "type", "");
 element_attribute!(Input, value, "value", "");
 element_attribute!(Input, width, "width", "");
+element_attribute!(Input, r#type, "width", "");
+// TODO: make nice API
+pub fn input() -> Input {
+    Input::new_empty()
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum InputType {
+    Button,
+    Checkbox,
+    Color,
+    Date,
+    DatetimeLocal,
+    Email,
+    File,
+    Hidden,
+    Image,
+    Month,
+    Number,
+    Password,
+    Radio,
+    Range,
+    Reset,
+    Search,
+    Submit,
+    Tel,
+    Text,
+    Time,
+    Url,
+    Week,
+}
+
+impl Default for InputType {
+    fn default() -> Self {
+        Self::Text
+    }
+}
+
+impl std::fmt::Display for InputType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let string = match self {
+            Self::Button => "button",
+            Self::Checkbox => "checkbox",
+            Self::Color => "color",
+            Self::Date => "date",
+            Self::DatetimeLocal => "datetime-local",
+            Self::Email => "email",
+            Self::File => "file",
+            Self::Hidden => "hidden",
+            Self::Image => "image",
+            Self::Month => "month",
+            Self::Number => "number",
+            Self::Password => "password",
+            Self::Radio => "radio",
+            Self::Range => "range",
+            Self::Reset => "reset",
+            Self::Search => "search",
+            Self::Submit => "submit",
+            Self::Tel => "tel",
+            Self::Text => "text",
+            Self::Time => "time",
+            Self::Url => "url",
+            Self::Week => "week",
+        };
+        write!(f, "{string}")
+    }
+}
+
 element_struct!(
     Button,
     button,
@@ -650,6 +808,9 @@ element_attribute!(
 element_attribute ! (Button , r#type , "type" , "The type of the button. Possible values are:\n\n*   `submit`: The button submits the form data to the server. This is the default if the attribute is not specified, or if the attribute is dynamically changed to an empty or invalid value.\n*   `reset`: The button resets all the controls to their initial values.\n*   `button`: The button has no default behavior. It can have client-side scripts associated with the element's events, which are triggered when the events occur.") ;
 element_attribute ! (Button , value , "value" , "The initial value of the button. It defines the value associated with the button which is submitted with the form data. This value is passed to the server in params when the form is submitted.") ;
 element_attribute ! (Button , autocomplete , "autocomplete" , "The use of this attribute on a [`<button>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/button \"The HTML <button> element represents a clickable button, which can be used in forms or anywhere in a document that needs simple, standard button functionality.\") is nonstandard and Firefox-specific. By default, unlike other browsers, [Firefox persists the dynamic disabled state](https://stackoverflow.com/questions/5985839/bug-with-firefox-disabled-attribute-of-input-not-resetting-when-refreshing) of a [`<button>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/button \"The HTML <button> element represents a clickable button, which can be used in forms or anywhere in a document that needs simple, standard button functionality.\") across page loads. Setting the value of this attribute to `off` (i.e. `autocomplete=\"off\"`) disables this feature. See [bug\u{a0}654072](https://bugzilla.mozilla.org/show_bug.cgi?id=654072 \"if disabled state is changed with javascript, the normal state doesn't return after refreshing the page\").") ;
+pub fn button() -> Button {
+    Button::new_empty()
+}
 element_struct!(
     Select,
     select,
