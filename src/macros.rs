@@ -1,4 +1,4 @@
-use crate::VoidElement;
+use std::collections::HashMap;
 
 #[macro_export]
 macro_rules! element_struct {
@@ -31,7 +31,15 @@ macro_rules! element_struct {
                 self.element
                     .attributes
                     .0
-                    .insert(key.to_string(), value.to_string());
+                    .entry(key.to_string())
+                    .and_modify(|entry| {
+                        if key.to_string() == "class" {
+                            entry.push_str(&format!(" {value}"))
+                        } else {
+                            *entry = value.to_string()
+                        }
+                    })
+                    .or_insert_with(|| value.to_string());
                 self
             }
         }
@@ -94,7 +102,15 @@ macro_rules! void_element_struct {
                 self.element
                     .attributes
                     .0
-                    .insert(key.to_string(), value.to_string());
+                    .entry(key.to_string())
+                    .and_modify(|entry| {
+                        if key.to_string() == "class" {
+                            entry.push_str(&format!(" {value}"))
+                        } else {
+                            *entry = value.to_string()
+                        }
+                    })
+                    .or_insert_with(|| value.to_string());
                 self
             }
         }
