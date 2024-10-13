@@ -82,9 +82,41 @@ pub trait Element: Sized {
         self.attribute("class", value)
     }
 
+    fn hx_get(self, url: impl Display) -> Self {
+        self.attribute("hx-get", url)
+    }
+
+    fn hx_target(self, target: impl Display) -> Self {
+        self.attribute("hx-target", target)
+    }
+
+    // TODO: make nice API
+    fn hx_swap(self, swap: impl Display) -> Self {
+        self.attribute("hx-swap", swap)
+    }
+
     // TODO: add docs?
     fn id(self, value: impl Display) -> Self {
         self.attribute("id", value)
+    }
+
+    fn response(&self) -> hyper::Response<http_body_util::Full<hyper::body::Bytes>>
+    where
+        Self: Display,
+    {
+        hyper::Response::builder()
+            .header(hyper::header::CONTENT_TYPE, "text/html; charset=utf-8")
+            .body(http_body_util::Full::new(hyper::body::Bytes::from(
+                format!("<!DOCTYPE html>\n{self}"),
+            )))
+            .unwrap()
+    }
+
+    fn response_ok<E>(&self) -> Result<hyper::Response<http_body_util::Full<hyper::body::Bytes>>, E>
+    where
+        Self: Display,
+    {
+        Ok(self.response())
     }
 }
 

@@ -276,11 +276,7 @@ pub fn h6(text: impl Display) -> H6 {
     H6::new_empty().text(text)
 }
 
-pub trait Heading: Sized
-where
-    Node: From<Self>,
-{
-}
+pub trait Heading: Element {}
 impl Heading for H1 {}
 impl Heading for H2 {}
 impl Heading for H3 {}
