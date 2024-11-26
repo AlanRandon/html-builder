@@ -233,6 +233,13 @@ element_attribute ! (Body , rightmargin , "rightmargin" , "The margin of the rig
 element_attribute ! (Body , text , "text" , "Foreground color of text. _This method is non-conforming, use CSS [`color`](https://developer.mozilla.org/en-US/docs/Web/CSS/color \"The color CSS property sets the foreground color value of an element's text and text decorations, and sets the currentcolor value.\") property on the element instead._") ;
 element_attribute ! (Body , topmargin , "topmargin" , "The margin of the top of the body. _This method is non-conforming, use CSS [`margin-top`](https://developer.mozilla.org/en-US/docs/Web/CSS/margin-top \"The margin-top CSS property sets the margin area on the top of an element. A positive value places it farther from its neighbors, while a negative value places it closer.\") property on the element instead._") ;
 element_attribute ! (Body , vlink , "vlink" , "Color of text for visited hypertext links. _This method is non-conforming, use CSS [`color`](https://developer.mozilla.org/en-US/docs/Web/CSS/color \"The color CSS property sets the foreground color value of an element's text and text decorations, and sets the currentcolor value.\") property in conjunction with the [`:visited`](https://developer.mozilla.org/en-US/docs/Web/CSS/:visited \"The :visited CSS pseudo-class represents links that the user has already visited. For privacy reasons, the styles that can be modified using this selector are very limited.\") pseudo-class instead._") ;
+
+impl Body {
+    pub fn script(self, script: impl Display) -> Self {
+        self.child(Script::new_empty().raw_text(script))
+    }
+}
+
 pub fn body() -> Body {
     Body::new_empty()
 }
@@ -752,7 +759,7 @@ element_attribute!(Input, src, "src", "");
 element_attribute!(Input, step, "step", "");
 element_attribute!(Input, value, "value", "");
 element_attribute!(Input, width, "width", "");
-element_attribute!(Input, r#type, "width", "");
+element_attribute!(Input, r#type, "type", "");
 // TODO: make nice API
 pub fn input() -> Input {
     Input::new_empty()
@@ -842,6 +849,13 @@ element_attribute!(
 element_attribute ! (Button , r#type , "type" , "The type of the button. Possible values are:\n\n*   `submit`: The button submits the form data to the server. This is the default if the attribute is not specified, or if the attribute is dynamically changed to an empty or invalid value.\n*   `reset`: The button resets all the controls to their initial values.\n*   `button`: The button has no default behavior. It can have client-side scripts associated with the element's events, which are triggered when the events occur.") ;
 element_attribute ! (Button , value , "value" , "The initial value of the button. It defines the value associated with the button which is submitted with the form data. This value is passed to the server in params when the form is submitted.") ;
 element_attribute ! (Button , autocomplete , "autocomplete" , "The use of this attribute on a [`<button>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/button \"The HTML <button> element represents a clickable button, which can be used in forms or anywhere in a document that needs simple, standard button functionality.\") is nonstandard and Firefox-specific. By default, unlike other browsers, [Firefox persists the dynamic disabled state](https://stackoverflow.com/questions/5985839/bug-with-firefox-disabled-attribute-of-input-not-resetting-when-refreshing) of a [`<button>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/button \"The HTML <button> element represents a clickable button, which can be used in forms or anywhere in a document that needs simple, standard button functionality.\") across page loads. Setting the value of this attribute to `off` (i.e. `autocomplete=\"off\"`) disables this feature. See [bug\u{a0}654072](https://bugzilla.mozilla.org/show_bug.cgi?id=654072 \"if disabled state is changed with javascript, the normal state doesn't return after refreshing the page\").") ;
+
+impl Button {
+    pub fn onclick(self, event: impl Display) -> Self {
+        self.attribute("onclick", event)
+    }
+}
+
 pub fn button(id: impl Display) -> Button {
     Button::new_empty().id(id)
 }
@@ -938,7 +952,17 @@ element_struct ! (Details , details , "The details element represents a disclosu
 element_attribute ! (Details , open , "open" , "This Boolean attribute indicates whether or not the details — that is, the contents of the `<details>` element — are currently visible. The default, `false`, means the details are not visible.") ;
 element_struct ! (Summary , summary , "The summary element represents a summary, caption, or legend for the rest of the contents of the summary element's parent details element, if any.") ;
 element_struct ! (Dialog , dialog , "The dialog element represents a part of an application that a user interacts with to perform a task, for example a dialog box, inspector, or window.") ;
-element_attribute ! (Dialog , open , "open" , "Indicates that the dialog is active and available for interaction. When the `open` attribute is not set, the dialog shouldn't be shown to the user.") ;
+
+impl Dialog {
+    pub fn open(self) -> Self {
+        self.attribute("open", "open")
+    }
+}
+
+pub fn dialog() -> Dialog {
+    Dialog::new_empty()
+}
+
 element_struct ! (Script , script , "The script element allows authors to include dynamic script and data blocks in their documents. The element does not represent content for the user.") ;
 element_attribute ! (Script , src , "src" , "This attribute specifies the URI of an external script; this can be used as an alternative to embedding a script directly within a document.\n\nIf a `script` element has a `src` attribute specified, it should not have a script embedded inside its tags.") ;
 element_attribute ! (Script , r#type , "type" , "This attribute indicates the type of script represented. The value of this attribute will be in one of the following categories:\n\n*   **Omitted or a JavaScript MIME type:** For HTML5-compliant browsers this indicates the script is JavaScript. HTML5 specification urges authors to omit the attribute rather than provide a redundant MIME type. In earlier browsers, this identified the scripting language of the embedded or imported (via the `src` attribute) code. JavaScript MIME types are [listed in the specification](https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types#JavaScript_types).\n*   **`module`:** For HTML5-compliant browsers the code is treated as a JavaScript module. The processing of the script contents is not affected by the `charset` and `defer` attributes. For information on using `module`, see [ES6 in Depth: Modules](https://hacks.mozilla.org/2015/08/es6-in-depth-modules/). Code may behave differently when the `module` keyword is used.\n*   **Any other value:** The embedded content is treated as a data block which won't be processed by the browser. Developers must use a valid MIME type that is not a JavaScript MIME type to denote data blocks. The `src` attribute will be ignored.\n\n**Note:** in Firefox you could specify the version of JavaScript contained in a `<script>` element by including a non-standard `version` parameter inside the `type` attribute — for example `type=\"text/javascript;version=1.8\"`. This has been removed in Firefox 59 (see [bug\u{a0}1428745](https://bugzilla.mozilla.org/show_bug.cgi?id=1428745 \"FIXED: Remove support for version parameter from script loader\")).") ;

@@ -90,9 +90,17 @@ pub trait Element: Sized {
         self.attribute("hx-target", target)
     }
 
+    fn hx_push_url(self, url: impl Display) -> Self {
+        self.attribute("hx-push-url", url)
+    }
+
     // TODO: make nice API
     fn hx_swap(self, swap: impl Display) -> Self {
         self.attribute("hx-swap", swap)
+    }
+
+    fn hx_on(self, event: impl Display, script: impl Display) -> Self {
+        self.attribute(format!("hx-on:{event}"), script)
     }
 
     // TODO: add docs?
