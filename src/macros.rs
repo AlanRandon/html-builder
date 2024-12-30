@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 #[macro_export]
 macro_rules! element_struct {
     ($name:ident, $tag_name:ident, $doc:literal) => {
@@ -55,6 +53,7 @@ macro_rules! element_struct {
         }
 
         impl $name {
+            #[allow(dead_code)]
             fn new_empty() -> Self {
                 $name {
                     element: GenericElement {
@@ -77,6 +76,7 @@ macro_rules! void_element_struct {
         }
 
         impl $name {
+            #[allow(dead_code)]
             fn new_empty() -> Self {
                 Self {
                     element: VoidElement {
@@ -122,6 +122,7 @@ macro_rules! element_attribute {
     ($element_name:ident, $method_name:ident, $html_name:literal, $doc:literal) => {
         impl $element_name {
             #[doc = $doc]
+            #[allow(clippy::empty_docs)]
             pub fn $method_name(self, value: impl std::fmt::Display) -> Self {
                 self.attribute($html_name, value)
             }
@@ -134,6 +135,7 @@ macro_rules! element_boolean_attribute {
     ($element_name:ident, $method_name:ident, $html_name:literal, $doc:literal) => {
         impl $element_name {
             #[doc = $doc]
+            #[allow(clippy::empty_docs)]
             pub fn $method_name(self) -> Self {
                 self.attribute($html_name, $html_name)
             }
