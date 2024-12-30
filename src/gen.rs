@@ -882,6 +882,19 @@ element_attribute!(
     "A Boolean attribute indicating that an option with a non-empty string value must be selected."
 );
 element_attribute ! (Select , size , "size" , "If the control is presented as a scrolling list box (e.g. when `multiple` is specified), this attribute represents the number of rows in the list that should be visible at one time. Browsers are not required to present a select element as a scrolled list box. The default value is 0.\n\n**Note:** According to the HTML5 specification, the default value for size should be 1; however, in practice, this has been found to break some web sites, and no other browser currently does that, so Mozilla has opted to continue to return 0 for the time being with Firefox.") ;
+impl Select {
+    pub fn option(self, text: impl Display, selected: bool) -> Self {
+        self.child(if selected {
+            option(text).selected()
+        } else {
+            option(text)
+        })
+    }
+}
+pub fn select(id: impl Display) -> Select {
+    Select::new_empty().id(&id).name(&id)
+}
+
 element_struct ! (Datalist , datalist , "The datalist element represents a set of option elements that represent predefined options for other controls. In the rendering, the datalist element represents nothing and it, along with its children, should be hidden.") ;
 element_struct!(
     Optgroup,
@@ -893,8 +906,15 @@ element_attribute ! (Optgroup , label , "label" , "The name of the group of opti
 element_struct ! (Option , option , "The option element represents an option in a select element or as part of a list of suggestions in a datalist element.") ;
 element_attribute ! (Option , disabled , "disabled" , "If this Boolean attribute is set, this option is not checkable. Often browsers grey out such control and it won't receive any browsing event, like mouse clicks or focus-related ones. If this attribute is not set, the element can still be disabled if one of its ancestors is a disabled [`<optgroup>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/optgroup \"The HTML <optgroup> element creates a grouping of options within a <select> element.\") element.") ;
 element_attribute ! (Option , label , "label" , "This attribute is text for the label indicating the meaning of the option. If the `label` attribute isn't defined, its value is that of the element text content.") ;
-element_attribute ! (Option , selected , "selected" , "If present, this Boolean attribute indicates that the option is initially selected. If the `<option>` element is the descendant of a [`<select>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/select \"The HTML <select> element represents a control that provides a menu of options\") element whose [`multiple`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/select#attr-multiple) attribute is not set, only one single `<option>` of this [`<select>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/select \"The HTML <select> element represents a control that provides a menu of options\") element may have the `selected` attribute.") ;
 element_attribute ! (Option , value , "value" , "The content of this attribute represents the value to be submitted with the form, should this option be selected.\u{a0}If this attribute is omitted, the value is taken from the text content of the option element.") ;
+impl Option {
+    pub fn selected(self) -> Self {
+        self.attribute("selected", "selected")
+    }
+}
+pub fn option(text: impl Display) -> Option {
+    Option::new_empty().text(text)
+}
 element_struct ! (Textarea , textarea , "The textarea element represents a multiline plain text edit control for the element's raw value. The contents of the control represent the control's default value.") ;
 element_attribute ! (Textarea , autocomplete , "autocomplete" , "This attribute indicates whether the value of the control can be automatically completed by the browser. Possible values are:\n\n*   `off`: The user must explicitly enter a value into this field for every use, or the document provides its own auto-completion method; the browser does not automatically complete the entry.\n*   `on`: The browser can automatically complete the value based on values that the user has entered during previous uses.\n\nIf the `autocomplete` attribute is not specified on a `<textarea>` element, then the browser uses the `autocomplete` attribute value of the `<textarea>` element's form owner. The form owner is either the [`<form>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/form \"The HTML <form> element represents a document section that contains interactive controls for submitting information to a web server.\") element that this `<textarea>` element is a descendant of or the form element whose `id` is specified by the `form` attribute of the input element. For more information, see the [`autocomplete`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/form#attr-autocomplete) attribute in [`<form>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/form \"The HTML <form> element represents a document section that contains interactive controls for submitting information to a web server.\").") ;
 element_attribute ! (Textarea , autofocus , "autofocus" , "This Boolean attribute lets you specify that a form control should have input focus when the page loads. Only one form-associated element in a document can have this attribute specified.") ;
