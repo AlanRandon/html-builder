@@ -966,6 +966,10 @@ element_struct ! (Fieldset , fieldset , "The fieldset element represents a set o
 element_attribute ! (Fieldset , disabled , "disabled" , "If this Boolean attribute is set, all form controls that are descendants of the `<fieldset>`, are disabled, meaning they are not editable and won't be submitted along with the `<form>`. They won't receive any browsing events, like mouse clicks or focus-related events. By default browsers display such controls grayed out. Note that form elements inside the [`<legend>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/legend \"The HTML <legend> element represents a caption for the content of its parent <fieldset>.\") element won't be disabled.") ;
 element_attribute ! (Fieldset , form , "form" , "This attribute takes the value of the `id` attribute of a [`<form>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/form \"The HTML <form> element represents a document section that contains interactive controls for submitting information to a web server.\") element you want the `<fieldset>` to be part of, even if it is not inside the form.") ;
 element_attribute ! (Fieldset , name , "name" , "The name associated with the group.\n\n**Note**: The caption for the fieldset is given by the first [`<legend>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/legend \"The HTML <legend> element represents a caption for the content of its parent <fieldset>.\") element nested inside it.") ;
+pub fn fieldset() -> Fieldset {
+    Fieldset::new_empty()
+}
+
 element_struct ! (Legend , legend , "The legend element represents a caption for the rest of the contents of the legend element's parent fieldset element, if any.") ;
 element_struct ! (Details , details , "The details element represents a disclosure widget from which the user can obtain additional information or controls.") ;
 element_attribute ! (Details , open , "open" , "This Boolean attribute indicates whether or not the details — that is, the contents of the `<details>` element — are currently visible. The default, `false`, means the details are not visible.") ;
