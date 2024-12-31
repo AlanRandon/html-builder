@@ -57,10 +57,12 @@ impl Tag {
 }
 
 fn main() {
-    let data =
-        include_str!("../../node_modules/@vscode/web-custom-data/data/browsers.html-data.json");
+    let data = std::fs::read_to_string(
+        "node_modules/@vscode/web-custom-data/data/browsers.html-data.json",
+    )
+    .unwrap();
 
-    let data = serde_json::Value::from_str(data).unwrap();
+    let data = serde_json::Value::from_str(&data).unwrap();
 
     let data = Vec::<Tag>::deserialize(data["tags"].clone().into_deserializer()).unwrap();
 

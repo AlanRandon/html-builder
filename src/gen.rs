@@ -732,9 +732,9 @@ element_attribute!(Input, accept, "accept", "");
 element_attribute!(Input, alt, "alt", "");
 element_attribute!(Input, autocomplete, "autocomplete", "");
 element_attribute!(Input, autofocus, "autofocus", "");
-element_boolean_attribute!(Input, checked, "checked", "");
+element_boolean_attribute!(Input, checked, set_checked, "checked", "");
 element_attribute!(Input, dirname, "dirname", "");
-element_boolean_attribute!(Input, disabled, "disabled", "");
+element_boolean_attribute!(Input, disabled, set_disabled, "disabled", "");
 element_attribute!(Input, form, "form", "");
 element_attribute!(Input, formaction, "formaction", "");
 element_attribute!(Input, formenctype, "formenctype", "");
@@ -748,12 +748,12 @@ element_attribute!(Input, max, "max", "");
 element_attribute!(Input, maxlength, "maxlength", "");
 element_attribute!(Input, min, "min", "");
 element_attribute!(Input, minlength, "minlength", "");
-element_boolean_attribute!(Input, multiple, "multiple", "");
+element_boolean_attribute!(Input, multiple, set_multiple, "multiple", "");
 element_attribute!(Input, name, "name", "");
 element_attribute!(Input, pattern, "pattern", "");
 element_attribute!(Input, placeholder, "placeholder", "");
-element_boolean_attribute!(Input, readonly, "readonly", "");
-element_boolean_attribute!(Input, required, "required", "");
+element_boolean_attribute!(Input, readonly, set_readonly, "readonly", "");
+element_boolean_attribute!(Input, required, set_required, "required", "");
 element_attribute!(Input, size, "size", "");
 element_attribute!(Input, src, "src", "");
 element_attribute!(Input, step, "step", "");
@@ -875,24 +875,26 @@ element_attribute!(
     "name",
     "This attribute is used to specify the name of the control."
 );
-element_attribute!(
+element_boolean_attribute!(
     Select,
     required,
+    set_required,
     "required",
     "A Boolean attribute indicating that an option with a non-empty string value must be selected."
 );
 element_attribute ! (Select , size , "size" , "If the control is presented as a scrolling list box (e.g. when `multiple` is specified), this attribute represents the number of rows in the list that should be visible at one time. Browsers are not required to present a select element as a scrolled list box. The default value is 0.\n\n**Note:** According to the HTML5 specification, the default value for size should be 1; however, in practice, this has been found to break some web sites, and no other browser currently does that, so Mozilla has opted to continue to return 0 for the time being with Firefox.") ;
 impl Select {
-    pub fn option(self, text: impl Display, selected: bool) -> Self {
-        self.child(if selected {
-            option(text).selected()
-        } else {
-            option(text)
-        })
+    pub fn option(self, text: impl Display, value: impl Display) -> Self {
+        self.child(option(text, value))
+    }
+
+    pub fn options(self, options: impl IntoIterator<Item = (impl Display, impl Display)>) -> Self {
+        self.children(options.into_iter().map(|(text, value)| option(text, value)))
     }
 }
-pub fn select(id: impl Display) -> Select {
-    Select::new_empty().id(&id).name(&id)
+
+pub fn select(id: impl Display, name: impl Display) -> Select {
+    Select::new_empty().id(&id).name(&name)
 }
 
 element_struct ! (Datalist , datalist , "The datalist element represents a set of option elements that represent predefined options for other controls. In the rendering, the datalist element represents nothing and it, along with its children, should be hidden.") ;
@@ -904,16 +906,11 @@ element_struct!(
 element_attribute ! (Optgroup , disabled , "disabled" , "If this Boolean attribute is set, none of the items in this option group is selectable. Often browsers grey out such control and it won't receive any browsing events, like mouse clicks or focus-related ones.") ;
 element_attribute ! (Optgroup , label , "label" , "The name of the group of options, which the browser can use when labeling the options in the user interface. This attribute is mandatory if this element is used.") ;
 element_struct ! (Option , option , "The option element represents an option in a select element or as part of a list of suggestions in a datalist element.") ;
-element_attribute ! (Option , disabled , "disabled" , "If this Boolean attribute is set, this option is not checkable. Often browsers grey out such control and it won't receive any browsing event, like mouse clicks or focus-related ones. If this attribute is not set, the element can still be disabled if one of its ancestors is a disabled [`<optgroup>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/optgroup \"The HTML <optgroup> element creates a grouping of options within a <select> element.\") element.") ;
+element_boolean_attribute! (Option , disabled , set_disabled, "disabled" , "If this Boolean attribute is set, this option is not checkable. Often browsers grey out such control and it won't receive any browsing event, like mouse clicks or focus-related ones. If this attribute is not set, the element can still be disabled if one of its ancestors is a disabled [`<optgroup>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/optgroup \"The HTML <optgroup> element creates a grouping of options within a <select> element.\") element.") ;
+element_boolean_attribute!(Option, checked, set_checked, "checked", "");
 element_attribute ! (Option , label , "label" , "This attribute is text for the label indicating the meaning of the option. If the `label` attribute isn't defined, its value is that of the element text content.") ;
-element_attribute ! (Option , value , "value" , "The content of this attribute represents the value to be submitted with the form, should this option be selected.\u{a0}If this attribute is omitted, the value is taken from the text content of the option element.") ;
-impl Option {
-    pub fn selected(self) -> Self {
-        self.attribute("selected", "selected")
-    }
-}
-pub fn option(text: impl Display) -> Option {
-    Option::new_empty().text(text)
+pub fn option(text: impl Display, value: impl Display) -> Option {
+    Option::new_empty().text(text).attribute("value", value)
 }
 element_struct ! (Textarea , textarea , "The textarea element represents a multiline plain text edit control for the element's raw value. The contents of the control represent the control's default value.") ;
 element_attribute ! (Textarea , autocomplete , "autocomplete" , "This attribute indicates whether the value of the control can be automatically completed by the browser. Possible values are:\n\n*   `off`: The user must explicitly enter a value into this field for every use, or the document provides its own auto-completion method; the browser does not automatically complete the entry.\n*   `on`: The browser can automatically complete the value based on values that the user has entered during previous uses.\n\nIf the `autocomplete` attribute is not specified on a `<textarea>` element, then the browser uses the `autocomplete` attribute value of the `<textarea>` element's form owner. The form owner is either the [`<form>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/form \"The HTML <form> element represents a document section that contains interactive controls for submitting information to a web server.\") element that this `<textarea>` element is a descendant of or the form element whose `id` is specified by the `form` attribute of the input element. For more information, see the [`autocomplete`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/form#attr-autocomplete) attribute in [`<form>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/form \"The HTML <form> element represents a document section that contains interactive controls for submitting information to a web server.\").") ;
@@ -930,7 +927,6 @@ element_attribute!(
     "minlength",
     "The minimum number of characters (unicode code points) required that the user should enter."
 );
-element_attribute!(Textarea, name, "name", "The name of the control.");
 element_attribute ! (Textarea , placeholder , "placeholder" , "A hint to the user of what can be entered in the control. Carriage returns or line-feeds within the placeholder text must be treated as line breaks when rendering the hint.\n\n**Note:** Placeholders should only be used to show an example of the type of data that should be entered into a form; they are _not_ a substitute for a proper [`<label>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/label \"The HTML <label> element represents a caption for an item in a user interface.\") element tied to the input. See [Labels and placeholders](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input#Labels_and_placeholders \"The HTML <input> element is used to create interactive controls for web-based forms in order to accept data from the user; a wide variety of types of input data and control widgets are available, depending on the device and user agent.\") in [<input>: The Input (Form Input) element](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input \"The HTML <input> element is used to create interactive controls for web-based forms in order to accept data from the user; a wide variety of types of input data and control widgets are available, depending on the device and user agent.\") for a full explanation.") ;
 element_attribute ! (Textarea , readonly , "readonly" , "This Boolean attribute indicates that the user cannot modify the value of the control. Unlike the `disabled` attribute, the `readonly` attribute does not prevent the user from clicking or selecting in the control. The value of a read-only control is still submitted with the form.") ;
 element_attribute!(
@@ -948,6 +944,9 @@ element_attribute!(
 element_attribute ! (Textarea , wrap , "wrap" , "Indicates how the control wraps text. Possible values are:\n\n*   `hard`: The browser automatically inserts line breaks (CR+LF) so that each line has no more than the width of the control; the `cols` attribute must also be specified for this to take effect.\n*   `soft`: The browser ensures that all line breaks in the value consist of a CR+LF pair, but does not insert any additional line breaks.\n*   `off` : Like `soft` but changes appearance to `white-space: pre` so line segments exceeding `cols` are not wrapped and the `<textarea>` becomes horizontally scrollable.\n\nIf this attribute is not specified, `soft` is its default value.") ;
 element_attribute ! (Textarea , autocapitalize , "autocapitalize" , "This is a non-standard attribute supported by WebKit on iOS (therefore nearly all browsers running on iOS, including Safari, Firefox, and Chrome), which controls whether and how the text value should be automatically capitalized as it is entered/edited by the user. The non-deprecated values are available in iOS 5 and later. Possible values are:\n\n*   `none`: Completely disables automatic capitalization.\n*   `sentences`: Automatically capitalize the first letter of sentences.\n*   `words`: Automatically capitalize the first letter of words.\n*   `characters`: Automatically capitalize all characters.\n*   `on`: Deprecated since iOS 5.\n*   `off`: Deprecated since iOS 5.") ;
 element_attribute ! (Textarea , spellcheck , "spellcheck" , "Specifies whether the `<textarea>` is subject to spell checking by the underlying browser/OS. the value can be:\n\n*   `true`: Indicates that the element needs to have its spelling and grammar checked.\n*   `default` : Indicates that the element is to act according to a default behavior, possibly based on the parent element's own `spellcheck` value.\n*   `false` : Indicates that the element should not be spell checked.") ;
+pub fn textarea(id: impl Display, name: impl Display) -> Textarea {
+    Textarea::new_empty().id(id).attribute("name", name)
+}
 element_struct ! (Output , output , "The output element represents the result of a calculation performed by the application, or the result of a user action.") ;
 element_attribute ! (Output , r#for , "for" , "A space-separated list of other elements’ [`id`](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/id)s, indicating that those elements contributed input values to (or otherwise affected) the calculation.") ;
 element_attribute ! (Output , form , "form" , "The [form element](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/form) that this element is associated with (its \"form owner\"). The value of the attribute must be an `id` of a form element in the same document. If this attribute is not specified, the output element must be a descendant of a form element. This attribute enables you to place output elements anywhere within a document, not just as descendants of their form elements.") ;

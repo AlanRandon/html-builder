@@ -40,6 +40,11 @@ macro_rules! element_struct {
                     .or_insert_with(|| value.to_string());
                 self
             }
+
+            fn remove_attribute(mut self, key: impl std::fmt::Display) -> Self {
+                self.element.attributes.0.remove(&key.to_string());
+                self
+            }
         }
 
         impl Children for $name {
@@ -113,6 +118,11 @@ macro_rules! void_element_struct {
                     .or_insert_with(|| value.to_string());
                 self
             }
+
+            fn remove_attribute(mut self, key: impl std::fmt::Display) -> Self {
+                self.element.attributes.0.remove(&key.to_string());
+                self
+            }
         }
     };
 }
@@ -132,12 +142,20 @@ macro_rules! element_attribute {
 
 #[macro_export]
 macro_rules! element_boolean_attribute {
-    ($element_name:ident, $method_name:ident, $html_name:literal, $doc:literal) => {
+    ($element_name:ident, $method_name:ident, $set_method_name:ident, $html_name:literal, $doc:literal) => {
         impl $element_name {
             #[doc = $doc]
             #[allow(clippy::empty_docs)]
             pub fn $method_name(self) -> Self {
                 self.attribute($html_name, $html_name)
+            }
+
+            pub fn $set_method_name(self, value: bool) -> Self {
+                if value {
+                    self.$method_name()
+                } else {
+                    self.remove_attribute($html_name)
+                }
             }
         }
     };
